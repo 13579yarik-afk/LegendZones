@@ -1,0 +1,111 @@
+sets:
+
+  CUPCAKE:
+    color: 16738740
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 38
+    weapon-data: 0
+    weapon-name: "§d§l✦ Цветок CUPCAKE ✦"
+
+  SPRING:
+    color: 5635925
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 283
+    weapon-data: 0
+    weapon-name: "§6§l✦ Меч SPRING ✦"
+
+  PURPIE_GUY:
+    color: 10027263
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 276
+    weapon-data: 0
+    weapon-name: "§5§l✦ Меч PURPIE GUY ✦"
+
+  BALLON_BOY:
+    color: 5636095
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 272
+    weapon-data: 0
+    weapon-name: "§9§l✦ Меч BALLON BOY ✦"
+
+  GFD:
+    color: 16776960
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 267
+    weapon-data: 0
+    weapon-name: "§e§l✦ Меч G.FD ✦"
+
+  MANGLE:
+    color: 16724787
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 258
+    weapon-data: 0
+    weapon-name: "§c§l✦ Топор MANGLE ✦"
+
+  PUPPET:
+    color: 0
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 261
+    weapon-data: 0
+    weapon-name: "§8§l✦ Лук PUPPET ✦"
+
+  FREDDY:
+    color: 11053224
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 257
+    weapon-data: 0
+    weapon-name: "§7§l✦ Кирка FREDDY ✦"
+
+  FOXY:
+    color: 10040115
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 276
+    weapon-data: 0
+    weapon-name: "§b§l✦ Меч FOXY ✦"
+
+  CHICA:
+    color: 16753920
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 286
+    weapon-data: 0
+    weapon-name: "§e§l✦ Топор CHICA ✦"
+
+  BONNIE:
+    color: 5592405
+    helmet: 298
+    chestplate: 299
+    leggings: 300
+    boots: 301
+    weapon-id: 279
+    weapon-data: 0
+    weapon-name: "§b§l✦ Топор BONNIE ✦"
