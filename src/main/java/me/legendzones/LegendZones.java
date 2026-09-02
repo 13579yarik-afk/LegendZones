@@ -1,11 +1,22 @@
 package me.legendzones;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class LegendZones extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         getLogger().info("LegendZones включён!");
     }
 
@@ -13,4 +24,109 @@ public class LegendZones extends JavaPlugin {
     public void onDisable() {
         getLogger().info("LegendZones выключен!");
     }
-}
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!command.getName().equalsIgnoreCase("zoneset")) {
+            return false;
+        }
+
+        if (!sender.hasPermission("legendzones.zoneset")) {
+            sender.sendMessage(ChatColor.RED + "У тебя нет прав!");
+            return true;
+        }
+
+        if (args.length < 1) {
+            sender.sendMessage(ChatColor.RED + "Используй: /zoneset <зона> [игрок]");
+            return true;
+        }
+
+        String zone = args[0].toUpperCase();
+
+        if (!getConfig().contains("sets." + zone)) {
+            sender.sendMessage(ChatColor.RED + "Такой зоны нет!");
+            return true;
+        }
+
+        Player target;
+
+        if (args.length >= 2) {
+            target = getServer().getPlayer(args[1]);
+
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Игрок не найден или не находится онлайн!");
+                return true;
+            }
+        } else {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Из консоли укажи игрока: /zoneset <зона> <игрок>");
+                return true;
+            }
+
+            target = (Player) sender;
+        }
+
+        int colorRGB = getConfig().getInt("sets." + zone + ".color");
+
+        target.getInventory().setHelmet(
+                createArmor(Material.LEATHER_HELMET, colorRGB)
+        );
+
+        target.getInventory().setChestplate(
+                createArmor(Material.LEATHER_CHESTPLATE, colorRGB)
+        );
+
+        target.getInventory().setLeggings(
+                createArmor(Material.LEATHER_LEGGINGS, colorRGB)
+        );
+
+        target.getInventory().setBoots(
+                createArmor(Material.LEATHER_BOOTS, colorRGB)
+        );
+
+        int weaponId = getConfig().getInt("sets." + zone + ".weapon-id");
+        short weaponData = (short) getConfig().getInt("sets." + zone + ".weapon-data");
+        String weaponName = getConfig().getString("sets." + zone + ".weapon-name");
+
+        Material weaponMaterial = Material.getMaterial(weaponId);
+
+        if (weaponMaterial != null) {
+
+            ItemStack weapon = new ItemStack(weaponMaterial, 1, weaponData);
+            ItemMeta meta = weapon.getItemMeta();
+
+            if (meta != null) {
+                meta.setDisplayName(weaponName);
+                weapon.setItemMeta(meta);
+            }
+
+            weapon.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+            weapon.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+
+            target.getInventory().addItem(weapon);
+        }
+
+        sender.sendMessage(
+                ChatColor.GREEN + "✦ Сет " + zone +
+                " выдан игроку " + target.getName() + "!"
+        );
+
+        return true;
+    }
+
+    private ItemStack createArmor(Material material, int rgb) {
+
+        ItemStack item = new ItemStack(material);
+
+        LeatherArmorMeta meta =
+                (LeatherArmorMeta) item.getItemMeta();
+
+        if (meta != null) {
+            meta.setColor(Color.fromRGB(rgb));
+            item.setItemMeta(meta);
+        }
+
+        return item;
+    }
+                            }
