@@ -1,0 +1,16 @@
+name: LegendZones
+version: 1.0
+main: me.legendzones.LegendZones
+author: Legend
+description: Система зон LegendZones
+
+commands:
+  zoneset:
+    description: Выдать полный сет зоны
+    usage: /zoneset <зона> [игрок]
+    permission: legendzones.zoneset
+
+permissions:
+  legendzones.zoneset:
+    description: Использование команды /zoneset
+    default: op
