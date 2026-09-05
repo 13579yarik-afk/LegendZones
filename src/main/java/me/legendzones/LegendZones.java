@@ -69,31 +69,60 @@ public class LegendZones extends JavaPlugin {
 
         int colorRGB = getConfig().getInt("sets." + zone + ".color");
 
+        // БРОНЯ СТРОГО ПРИВЯЗАНА К ЗОНЕ
+
         target.getInventory().setHelmet(
-                createArmor(Material.LEATHER_HELMET, colorRGB)
+                createArmor(
+                        Material.LEATHER_HELMET,
+                        colorRGB,
+                        "Шлем",
+                        zone
+                )
         );
 
         target.getInventory().setChestplate(
-                createArmor(Material.LEATHER_CHESTPLATE, colorRGB)
+                createArmor(
+                        Material.LEATHER_CHESTPLATE,
+                        colorRGB,
+                        "Нагрудник",
+                        zone
+                )
         );
 
         target.getInventory().setLeggings(
-                createArmor(Material.LEATHER_LEGGINGS, colorRGB)
+                createArmor(
+                        Material.LEATHER_LEGGINGS,
+                        colorRGB,
+                        "Поножи",
+                        zone
+                )
         );
 
         target.getInventory().setBoots(
-                createArmor(Material.LEATHER_BOOTS, colorRGB)
+                createArmor(
+                        Material.LEATHER_BOOTS,
+                        colorRGB,
+                        "Ботинки",
+                        zone
+                )
         );
 
+        // ПРЕДМЕТ ЗОНЫ
+
         int weaponId = getConfig().getInt("sets." + zone + ".weapon-id");
-        short weaponData = (short) getConfig().getInt("sets." + zone + ".weapon-data");
-        String weaponName = getConfig().getString("sets." + zone + ".weapon-name");
+        short weaponData =
+                (short) getConfig().getInt("sets." + zone + ".weapon-data");
+
+        String weaponName =
+                getConfig().getString("sets." + zone + ".weapon-name");
 
         Material weaponMaterial = Material.getMaterial(weaponId);
 
         if (weaponMaterial != null) {
 
-            ItemStack weapon = new ItemStack(weaponMaterial, 1, weaponData);
+            ItemStack weapon =
+                    new ItemStack(weaponMaterial, 1, weaponData);
+
             ItemMeta meta = weapon.getItemMeta();
 
             if (meta != null) {
@@ -101,32 +130,68 @@ public class LegendZones extends JavaPlugin {
                 weapon.setItemMeta(meta);
             }
 
-            weapon.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
-            weapon.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            weapon.addUnsafeEnchantment(
+                    Enchantment.DAMAGE_ALL,
+                    1
+            );
+
+            weapon.addUnsafeEnchantment(
+                    Enchantment.DURABILITY,
+                    1
+            );
 
             target.getInventory().addItem(weapon);
         }
 
         sender.sendMessage(
-                ChatColor.GREEN + "✦ Сет " + zone +
-                " выдан игроку " + target.getName() + "!"
+                ChatColor.GREEN +
+                "✦ Сет " +
+                zone +
+                " выдан игроку " +
+                target.getName() +
+                "!"
         );
 
         return true;
     }
 
-    private ItemStack createArmor(Material material, int rgb) {
+    /**
+     * Создаёт кожаную броню,
+     * которая содержит название конкретной зоны.
+     */
+    private ItemStack createArmor(
+            Material material,
+            int rgb,
+            String type,
+            String zone
+    ) {
 
-        ItemStack item = new ItemStack(material);
+        ItemStack item =
+                new ItemStack(material);
 
         LeatherArmorMeta meta =
                 (LeatherArmorMeta) item.getItemMeta();
 
         if (meta != null) {
-            meta.setColor(Color.fromRGB(rgb));
+
+            // Цвет брони
+            meta.setColor(
+                    Color.fromRGB(rgb)
+            );
+
+            // Уникальное название брони
+            meta.setDisplayName(
+                    ChatColor.WHITE +
+                    "✦ " +
+                    type +
+                    " " +
+                    zone +
+                    " ✦"
+            );
+
             item.setItemMeta(meta);
         }
 
         return item;
     }
-                            }
+}
