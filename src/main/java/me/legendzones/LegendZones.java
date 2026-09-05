@@ -6,15 +6,15 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class LegendZones extends JavaPlugin implements Listener {
 
@@ -46,8 +46,7 @@ public class LegendZones extends JavaPlugin implements Listener {
 
         if (!sender.hasPermission("legendzones.zoneset")) {
             sender.sendMessage(
-                    ChatColor.RED +
-                    "У тебя нет прав!"
+                    ChatColor.RED + "У тебя нет прав!"
             );
             return true;
         }
@@ -103,9 +102,9 @@ public class LegendZones extends JavaPlugin implements Listener {
                 );
 
         /*
-         * ==========================================
-         * БРОНЯ ЗОНЫ
-         * ==========================================
+         * ==============================
+         * БРОНЯ
+         * ==============================
          */
 
         target.getInventory().setHelmet(
@@ -145,9 +144,9 @@ public class LegendZones extends JavaPlugin implements Listener {
         );
 
         /*
-         * ==========================================
+         * ==============================
          * ПРЕДМЕТ ЗОНЫ
-         * ==========================================
+         * ==============================
          */
 
         int weaponId =
@@ -217,9 +216,9 @@ public class LegendZones extends JavaPlugin implements Listener {
     }
 
     /*
-     * ==========================================
+     * ==============================
      * СОЗДАНИЕ БРОНИ
-     * ==========================================
+     * ==============================
      */
 
     private ItemStack createArmor(
@@ -257,26 +256,29 @@ public class LegendZones extends JavaPlugin implements Listener {
     }
 
     /*
-     * ==========================================
-     * СТРОГАЯ ПРОВЕРКА БРОНИ
-     * ==========================================
+     * ==============================
+     * ГЛАВНАЯ ПРОВЕРКА
+     * ==============================
      *
-     * SPRING       -> CUPCAKE
-     * PURPIE_GUY   -> SPRING
-     * BALLON_BOY   -> PURPIE_GUY
-     * GFD          -> BALLON_BOY
-     * MANGLE       -> GFD
-     * PUPPET       -> MANGLE
-     * FREDDY       -> PUPPET
-     * FOXY         -> FREDDY
-     * CHICA        -> FOXY
-     * BONNIE       -> CHICA
+     * Проверяем именно кнопку покупки
+     * и именно надетую броню игрока.
+     *
+     * SPRING -> CUPCAKE
+     * PURPIE_GUY -> SPRING
+     * BALLON_BOY -> PURPIE_GUY
+     * GFD -> BALLON_BOY
+     * MANGLE -> GFD
+     * PUPPET -> MANGLE
+     * FREDDY -> PUPPET
+     * FOXY -> FREDDY
+     * CHICA -> FOXY
+     * BONNIE -> CHICA
      *
      * CUPCAKE ничего не требует.
      */
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onZoneArmorExchange(
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onZoneMenuClick(
             InventoryClickEvent event
     ) {
 
@@ -286,6 +288,18 @@ public class LegendZones extends JavaPlugin implements Listener {
 
         Player player =
                 (Player) event.getWhoClicked();
+
+        /*
+         * Нас интересует только верхнее меню.
+         */
+        if (event.getClickedInventory() == null) {
+            return;
+        }
+
+        if (event.getClickedInventory()
+                != player.getOpenInventory().getTopInventory()) {
+            return;
+        }
 
         String title =
                 event.getView().getTitle();
@@ -312,49 +326,55 @@ public class LegendZones extends JavaPlugin implements Listener {
         }
 
         /*
-         * CUPCAKE не требует предыдущую броню.
+         * CUPCAKE покупается без предыдущей брони.
          */
         if (currentZone.equals("CUPCAKE")) {
             return;
         }
 
         /*
-         * Слоты ChestCommands:
+         * Определяем кнопку по её названию.
          *
-         * Шлем       = 4
-         * Нагрудник  = 11
-         * Поножи     = 13
-         * Ботинки    = 15
-         *
-         * Остальные предметы, включая оружие,
-         * НЕ трогаем.
+         * Это надёжнее, чем просто смотреть
+         * на номер слота.
          */
+        ItemStack clicked =
+                event.getCurrentItem();
 
-        int slot =
-                event.getRawSlot();
-
-        String armorType = null;
-
-        if (slot == 4) {
-
-            armorType = "Шлем";
-
-        } else if (slot == 11) {
-
-            armorType = "Нагрудник";
-
-        } else if (slot == 13) {
-
-            armorType = "Поножи";
-
-        } else if (slot == 15) {
-
-            armorType = "Ботинки";
+        if (clicked == null ||
+                clicked.getType() == Material.AIR) {
+            return;
         }
 
+        if (!clicked.hasItemMeta()) {
+            return;
+        }
+
+        ItemMeta clickedMeta =
+                clicked.getItemMeta();
+
+        if (clickedMeta == null ||
+                !clickedMeta.hasDisplayName()) {
+            return;
+        }
+
+        String buttonName =
+                ChatColor.stripColor(
+                        clickedMeta.getDisplayName()
+                );
+
+        if (buttonName == null) {
+            return;
+        }
+
+        String armorType =
+                getArmorTypeFromButton(buttonName);
+
         /*
-         * Если нажата не броня —
-         * ничего не делаем.
+         * Если это не одна из четырёх частей
+         * брони — ничего не блокируем.
+         *
+         * Поэтому оружие продолжает работать.
          */
         if (armorType == null) {
             return;
@@ -367,22 +387,34 @@ public class LegendZones extends JavaPlugin implements Listener {
             return;
         }
 
-        ItemStack previousArmor =
+        /*
+         * Получаем именно надетую часть брони.
+         */
+        ItemStack requiredArmor =
                 getArmorItem(
                         player,
                         armorType
                 );
 
         /*
-         * Проверяем именно название брони.
+         * ПРОВЕРКА НАЗВАНИЯ.
          */
         if (!isCorrectZoneArmor(
-                previousArmor,
+                requiredArmor,
                 armorType,
                 previousZone
         )) {
 
+            /*
+             * Полностью отменяем клик.
+             *
+             * ChestCommands не должен списать
+             * предметы и не должен выполнить
+             * COMMAND этой кнопки.
+             */
             event.setCancelled(true);
+
+            player.updateInventory();
 
             player.sendMessage(
                     ChatColor.RED +
@@ -400,9 +432,41 @@ public class LegendZones extends JavaPlugin implements Listener {
     }
 
     /*
-     * ==========================================
-     * ОПРЕДЕЛЕНИЕ ЗОНЫ ПО НАЗВАНИЮ МЕНЮ
-     * ==========================================
+     * ==============================
+     * ОПРЕДЕЛЕНИЕ ТИПА БРОНИ
+     * ==============================
+     */
+
+    private String getArmorTypeFromButton(
+            String name
+    ) {
+
+        String upper =
+                name.toUpperCase();
+
+        if (upper.contains("ШЛЕМ")) {
+            return "Шлем";
+        }
+
+        if (upper.contains("НАГРУДНИК")) {
+            return "Нагрудник";
+        }
+
+        if (upper.contains("ПОНОЖИ")) {
+            return "Поножи";
+        }
+
+        if (upper.contains("БОТИНКИ")) {
+            return "Ботинки";
+        }
+
+        return null;
+    }
+
+    /*
+     * ==============================
+     * ОПРЕДЕЛЕНИЕ ЗОНЫ МЕНЮ
+     * ==============================
      */
 
     private String getMenuZone(
@@ -457,9 +521,9 @@ public class LegendZones extends JavaPlugin implements Listener {
     }
 
     /*
-     * ==========================================
+     * ==============================
      * ПРЕДЫДУЩАЯ ЗОНА
-     * ==========================================
+     * ==============================
      */
 
     private String getPreviousZone(
@@ -504,9 +568,9 @@ public class LegendZones extends JavaPlugin implements Listener {
     }
 
     /*
-     * ==========================================
-     * ПОЛУЧЕНИЕ ЧАСТИ БРОНИ ИГРОКА
-     * ==========================================
+     * ==============================
+     * ПОЛУЧЕНИЕ БРОНИ
+     * ==============================
      */
 
     private ItemStack getArmorItem(
@@ -546,9 +610,9 @@ public class LegendZones extends JavaPlugin implements Listener {
     }
 
     /*
-     * ==========================================
-     * ПРОВЕРКА БРОНИ
-     * ==========================================
+     * ==============================
+     * ПРОВЕРКА НАЗВАНИЯ БРОНИ
+     * ==============================
      */
 
     private boolean isCorrectZoneArmor(
@@ -565,6 +629,43 @@ public class LegendZones extends JavaPlugin implements Listener {
             return false;
         }
 
+        /*
+         * Проверяем материал.
+         */
+        Material expectedMaterial;
+
+        if (armorType.equals("Шлем")) {
+
+            expectedMaterial =
+                    Material.LEATHER_HELMET;
+
+        } else if (armorType.equals("Нагрудник")) {
+
+            expectedMaterial =
+                    Material.LEATHER_CHESTPLATE;
+
+        } else if (armorType.equals("Поножи")) {
+
+            expectedMaterial =
+                    Material.LEATHER_LEGGINGS;
+
+        } else if (armorType.equals("Ботинки")) {
+
+            expectedMaterial =
+                    Material.LEATHER_BOOTS;
+
+        } else {
+
+            return false;
+        }
+
+        if (item.getType() != expectedMaterial) {
+            return false;
+        }
+
+        /*
+         * Проверяем ItemMeta.
+         */
         if (!item.hasItemMeta()) {
             return false;
         }
@@ -576,28 +677,38 @@ public class LegendZones extends JavaPlugin implements Listener {
             return false;
         }
 
+        /*
+         * Проверяем DisplayName.
+         */
         if (!meta.hasDisplayName()) {
             return false;
         }
 
-        String name =
+        String actualName =
                 ChatColor.stripColor(
                         meta.getDisplayName()
                 );
 
-        if (name == null) {
+        if (actualName == null) {
             return false;
         }
 
-        String expected =
+        /*
+         * Какое название должно быть.
+         *
+         * Например:
+         *
+         * ✦ Нагрудник CUPCAKE ✦
+         */
+        String expectedName =
                 "✦ " +
                 armorType +
                 " " +
                 zone +
                 " ✦";
 
-        return name.equalsIgnoreCase(
-                expected
+        return actualName.equalsIgnoreCase(
+                expectedName
         );
     }
 }
